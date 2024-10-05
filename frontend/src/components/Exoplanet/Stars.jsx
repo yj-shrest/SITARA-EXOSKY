@@ -23,8 +23,10 @@ const Stars = ({ra,dec,sy_dist}) => {
         const fetchStars = async () => {
             console.log("Fetching stars");
             try {
-                const response = await axios.get(`http://localhost:4000/api/getStarData?ra=${ra}&dec=${dec}&searchRadius=20&magLimit=10`);
-                
+                const response = await axios.get(`http://localhost:4000/api/getStarData?ra=${ra}&dec=${dec}&dist=${sy_dist}&plusminus=200`);
+                console.log(
+                  `http://localhost:4000/api/getStarData?ra=${ra}&dec=${dec}&dist=${sy_dist}&plusminus=200&searchRadius=20&magLimit=10`
+                );
                 // Directly use response.data, assuming the data is already in JSON format
                 console.log(response.data.data)
                 const data = response.data.data;

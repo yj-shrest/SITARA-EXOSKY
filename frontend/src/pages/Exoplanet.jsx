@@ -44,14 +44,12 @@ const TexturedPlane = () => {
 
     // Convert to degrees
     const pitchDegrees = THREE.MathUtils.radToDeg(pitch);
-    console.log(pitchDegrees)
     // Calculate opacity based on pitch (up and down)
     // Invert the logic: when looking down, opacity should decrease
     // const opacity = Math.max(0, Math.min(1, (pitchDegrees - 90) / -90));// Adjust this logic
     const opacity = pitchDegrees<0?(90+pitchDegrees)/90:1;// Adjust this logic
 
     // Log the pitch and opacity values
-    console.log("Pitch in degrees:", pitchDegrees, "Opacity:", opacity);
 
     // Update the material's opacity
     if (materialRef.current) {
@@ -100,7 +98,7 @@ const Scene = (originShift) => {
       <TexturedPlane />
       </group>
       {/* <FloatingSpheres /> */}
-      <Stars ra={ra} dec={dec} sy_dist = {sy_dist} />
+      <Stars ra={ra} dec={dec} sy_dist ={sy_dist} />
     </>
   );
 };
@@ -115,6 +113,13 @@ export default function Exoplanet() {
   const {ra,dec,sy_dist:distance} = singlePlanetData
   const exoplanetPosition = convertToCartesian({ra, dec, distance});
   console.log(selectedPlanet)
+
+  const [loading, setLoading] = useState(true)
+
+  useEffect(()=>{
+    setTimeout(()=>{setLoading(false)}, [5000])
+  }, [])
+
   return (
     <div className="w-full h-screen" style={{ backgroundColor: "black" }}>
       <Canvas>
@@ -122,6 +127,10 @@ export default function Exoplanet() {
         <CustomControls />
       </Canvas>
 
+     {loading&& <div className = "w-full h-full top-0 left-0 absolute object-contain flex items-center justify-center bg-[#0a1314]">
+        <img src="/loading.gif" alt=""  classname= "h-full w-full"/>
+        </div>  
+}
       <button className="absolute top-[2rem] bg-blue-600 px-4 py-2 text-white right-[2rem] rounded">
         {`${
         isNorthPole ? "View South Pole" : "View North Pole"
