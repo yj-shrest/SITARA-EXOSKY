@@ -73,7 +73,7 @@ export default function Home() {
         )}
         <CameraController selectedPlanet={selectedPlanet}/>
       </Canvas>
-      {selectedPlanet && (<div className='absolute top-[10vh] left-[7rem] w-[20rem] h-[40rem] bg-black bg-opacity-50 flex flex-col items-center justify-center'>
+      {selectedPlanet && (<div className='absolute top-[40vh] left-[7rem] w-[20rem] bg-black bg-opacity-50 flex flex-col items-center justify-center'>
         <p className='text-white text-2xl font-semibold'>{selectedPlanet.pl_name}</p>
         <p className='text-white text-lg'>{`Host Star: ${selectedPlanet.hostname}`}</p>
         <p className='text-white text-lg'>{`Distance: ${selectedPlanet.sy_dist} parsecs`}</p>

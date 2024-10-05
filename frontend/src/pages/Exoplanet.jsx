@@ -1,91 +1,103 @@
-import React, { useRef, useEffect } from "react";
-import { Canvas, useThree, extend, useLoader } from "@react-three/fiber";
+import React, { useEffect } from "react";
+import { Canvas, useThree, extend } from "@react-three/fiber";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { TextureLoader } from "three";
-import * as THREE from 'three'
-import CustomControls from "../components/Exoplanet/CustomControls";
-import FloatingSpheres from "../components/Exoplanet/FloatingSpheres";
-
-
+import * as THREE from 'three';
+import Stars from "../components/Exoplanet/Stars";
+import { useRef } from "react";
 extend({ OrbitControls });
+const exoplanetData = {
+  ra: 10, // Right Ascension in degrees
+  dec: 40, // Declination in degrees
+  distance: 21.1397, // Distance in parsecs
+};
 
-// const CustomControls = () => {
-//   const { camera, gl } = useThree();
-//   const target = new THREE.Vector3(0, 0, -10); // Set target point to look at
+// Convert exoplanet RA/Dec/Distance to Cartesian coordinates
+const convertToCartesian = ({ ra, dec, distance }) => {
+  const theta = (90 - dec) * (Math.PI / 180); // Declination to radians
+  const phi = ra * (Math.PI / 180); // Right Ascension to radians
+  const x = distance * Math.sin(theta) * Math.cos(phi);
+  const y = distance * Math.cos(theta);
+  const z = distance * Math.sin(theta) * Math.sin(phi);
+  return { x, y, z };
+};
+const CustomControls = () => {
+  const { camera, gl } = useThree();
+  
+  useEffect(() => {
+    // Initialize OrbitControls with a fixed camera position
+    const controls = new OrbitControls(camera, gl.domElement);
 
-//   useEffect(() => {
-//     const controls = new OrbitControls(camera, gl.domElement);
+    // Disable zooming and panning
+    controls.enableZoom = false;
+    controls.enablePan = false;
 
-//     // Set custom options
-//     controls.enabled = true;
-//     controls.enableDamping = true;
-//     controls.dampingFactor = 0.2;
-//     controls.enableZoom = false;
-//     controls.enablePan = false;
-//     controls.minDistance = 1;
-//     controls.maxDistance = Infinity;
-//     controls.enableKeyboardNavigation = true;
-//     controls.keyboardDollySpeed = 2;
-//     controls.keyboardPanSpeed = 10;
-//     controls.keyboardSpeedFactor = 3;
-//     controls.firstPersonRotationFactor = 0.4;
-//     controls.pinchPanSpeed = 1;
-//     controls.pinchEpsilon = 2;
-//     controls.pointerRotationSpeedPolar = Math.PI / 360;
-//     controls.pointerRotationSpeedAzimuth = Math.PI / 360;
-//     controls.keyboardRotationSpeedAzimuth = (10 * Math.PI) / 360;
-//     controls.keyboardRotationSpeedPolar = (10 * Math.PI) / 360;
-//     controls.minZoom = 0;
-//     controls.maxZoom = Infinity;
+    // Allow rotation around a fixed position
+    controls.enableDamping = true; 
+    controls.dampingFactor = 0.1;  // Smooth rotation
+    controls.rotateSpeed = 0.8;    // Control the rotation speed
+    
+    // Set the camera to look at a central target (e.g., 0, 0, 0)
+    const target = new THREE.Vector3(0, 0, 0);
+    camera.position.set(0, 10, 20); // Fixed camera position
+    camera.lookAt(target);
 
-//     // Add event listener for camera movement
-//     controls.addEventListener("change", () => {
-//       camera.position.set(
-//         controls.object.position.x,
-//         controls.object.position.y,
-//         controls.object.position.z
-//       );
-//       camera.lookAt(target); // Look at the target point
-//     });
+    // Keep the camera looking at the target during rotation
+    controls.addEventListener("change", () => {
+      camera.lookAt(target);
+    });
 
-//     // Clean up on component unmount
-//     return () => {
-//       controls.dispose();
-//     };
-//   }, [camera, gl]);
+    // Clean up the controls on unmount
+    return () => {
+      controls.dispose();
+    };
+  }, [camera, gl]);
 
-//   return null;
-// };
-
+  return null;
+};
 
 const TexturedPlane = () => {
-  // Load the texture using useLoader
-  const texture = useLoader(TextureLoader, "/Venusian.png"); // Update the path to your texture file
+  // Ground or environment texture
+  const texture = new THREE.TextureLoader().load("/Venusian.png");
 
   return (
     <mesh position={[0, -2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[500, 500, 50, 50]} />
+      <planeGeometry args={[500, 500]} />
       <meshStandardMaterial map={texture} />
     </mesh>
   );
 };
 
-const Scene = () => {
+const Scene = (originShift) => {
+  const groupRef = useRef()
+  useEffect(() => {
+    if (groupRef.current) {
+      groupRef.current.position.set(
+        -originShift.x,
+        -originShift.y,
+        -originShift.z
+      ); // Shift the origin
+    }
+  }, [originShift]);
   return (
     <>
+    <group ref={groupRef}>
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} />
       <TexturedPlane />
-      <FloatingSpheres />
+      </group>
+      {/* <FloatingSpheres /> */}
+      <Stars ra={10} dec={40}/>
     </>
   );
 };
 
 export default function Exoplanet() {
+  const exoplanetPosition = convertToCartesian(exoplanetData);
+
   return (
     <div className="w-full h-screen" style={{ backgroundColor: "black" }}>
-      <Canvas camera={{ position: [0, 10, 10], fov: 60 }}>
-        <Scene />
+      <Canvas>
+        <Scene originShift={exoplanetPosition} />
         <CustomControls />
       </Canvas>
     </div>
