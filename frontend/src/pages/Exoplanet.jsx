@@ -3,24 +3,16 @@ import { Canvas, useThree, extend } from "@react-three/fiber";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as THREE from 'three';
 import Stars from "../components/Exoplanet/Stars";
-import { useRef } from "react";
 import { useGlobalContext } from "../components/Context";
 import {useParams} from "react-router-dom"
 import planetData from "../planets.json"
 import CustomControls from "../components/Exoplanet/CustomControls"
-import { Link } from "react-router-dom";
+import SkyMap2D from "../pages/SkyMap2D"
+import {useState} from "react";
 extend({ OrbitControls });
 
 
 // Convert exoplanet RA/Dec/Distance to Cartesian coordinates
-const convertToCartesian = ({ ra, dec, distance }) => {
-  const theta = (90 - dec) * (Math.PI / 180); // Declination to radians
-  const phi = ra * (Math.PI / 180); // Right Ascension to radians
-  const x = distance * Math.sin(theta) * Math.cos(phi);
-  const y = distance * Math.sin(theta) * Math.sin(phi);
-  const z = distance * Math.cos(theta);
-  return { x, y, z };
-};
 
 const TexturedPlane = () => {
   // Ground or environment texture
@@ -34,8 +26,7 @@ const TexturedPlane = () => {
   );
 };
 
-const Scene = (originShift) => {
-  const {selectedPlanet} = useGlobalContext()
+const Scene = () => {
   // const {ra,dec,sy_dist} = selectedPlanet
   let {planetName} = useParams()
   planetName = planetName.split("_").join(" ")
@@ -43,16 +34,6 @@ const Scene = (originShift) => {
   // const groupRef = useRef()
   const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
   const {ra,dec,sy_dist} = singlePlanetData
-  
-  // useEffect(() => {
-  //   if (groupRef.current) {
-  //     groupRef.current.position.set(
-  //       -originShift.x,
-  //       -originShift.y,
-  //       -originShift.z
-  //     ); // Shift the origin
-  //   }
-  // }, [originShift]);
   return (
     <>
     <group>
@@ -67,27 +48,35 @@ const Scene = (originShift) => {
 };
 
 export default function Exoplanet() {
-  const {selectedPlanet, setStars} = useGlobalContext()
-  // const {ra,dec,sy_dist:distance} = selectedPlanet
+  const [skymap2d, setSkymap2d] = useState(false)
+  // const {selectedPlanet, setSelectedPlanet} = useGlobalContext()
+  // // const {ra,dec,sy_dist:distance} = selectedPlanet
   let {planetName} = useParams()
   planetName = planetName.split("_").join(" ")
   const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
-  const {ra,dec,sy_dist:distance} = singlePlanetData
-  const exoplanetPosition = convertToCartesian({ra, dec, distance});
-  console.log(selectedPlanet)
+  const {ra:planetRa,dec:planetDec,sy_dist:planetDistance} = singlePlanetData
+  // const exoplanetPosition = convertToCartesian({ra, dec, distance});
+  // console.log(selectedPlanet)
+  const handleOnclick = () => {
+    setSkymap2d(true)
+  }
+  if(!skymap2d){
   return (
     <div className="w-full h-screen" style={{ backgroundColor: "black" }}>
       <Canvas>
         <Scene />
         <CustomControls />
       </Canvas>
-      <button className="bg-blue-600 text-white px-4 py-2 rounded mt-2 self-center" onClick={() => {
-        setStars([])
-      }}>
-              <Link to={`/skymap2d`}>
-              Draw Constellation
-              </Link>
+      <button className="bg-blue-600 text-white px-4 py-2 rounded mt-2 self-center" onClick={()=>handleOnclick()}>
+        Draw Constellation
             </button>
     </div>
   );
+}
+else{
+  return(
+    <SkyMap2D planetRa={planetRa} planetDec={planetDec} planetDistance={planetDistance}/>
+  )
+}
+
 }

@@ -24,8 +24,8 @@ const Stars = ({ra,dec,sy_dist}) => {
         const fetchStars = async () => {
             console.log("Fetching stars");
             try {
-                const response = await axios.get(`http://localhost:4000/api/getStarData?ra=${ra}&dec=${dec}&searchRadius=20&magLimit=10`);
-                
+                const response = await axios.get(`http://localhost:4000/api/getStarData?ra=${ra}&dec=${dec}&searchRadius=20&magLimit=10&dist=${sy_dist}&plusminus=200`);
+                console.log(response.data.total)
                 // Directly use response.data, assuming the data is already in JSON format
                 const data = response.data.data;
                 console.log(data[0])
@@ -69,13 +69,13 @@ const Stars = ({ra,dec,sy_dist}) => {
         const x = starx - planetx
         const y = stary - planety
         const z = starz - planetz
-
+        // console.log(theta,phi,planettheta,planetphi)
+        // console.log(x,y,z)
         if(star)
-        
         return (
           <Star
             key={index}
-            position={[40*x, 40*y, 40*z]}
+            position={[20*x, 20*y, 20*z]}
             magnitude={star.Magnitude / 10}
           />
         );
