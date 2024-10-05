@@ -35,38 +35,7 @@ router.get('/api/getStarData', [], async (req, res) => {
     OFFSET ${offset}
 `;
 
-<<<<<<< HEAD
-router.get('/api/getStarData', [], 
-
-    async (req, res) => {
-
-        const {ra, dec, searchRadius, magLimit} = req.query
-        const url = "https://gea.esac.esa.int/tap-server/tap/sync";
-        console.log("Requestesd")
-        console.log(ra, dec, searchRadius, magLimit)
-        const query = `
-          SELECT TOP 1000
-        gaia_source.source_id,
-        gaia_source.ra,   -- Include RA
-        gaia_source.dec,
-        gaia_source.parallax,
-        gaia_source.distance_gspphot,  
-        gaia_source.phot_g_mean_mag,   
-        gaia_source.bp_rp              
-      FROM gaiadr3.gaia_source
-      WHERE 1=CONTAINS(
-        POINT('ICRS', gaia_source.ra, gaia_source.dec), 
-        CIRCLE('ICRS', ${ra}, ${dec}, ${searchRadius}))
-      AND gaia_source.phot_g_mean_mag <= ${magLimit} 
-      AND gaia_source.parallax IS NOT NULL
-      ORDER BY gaia_source.distance_gspphot ASC
-      `;
-
-      try {
-       
-=======
     try {
->>>>>>> 5ef1d28bd907ceacedf95bda37536638bfb26f7a
         const response = await axios.post(
             url,
             qs.stringify({
