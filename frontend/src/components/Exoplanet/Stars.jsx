@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import planetData from '../../planets.json'
+import { useGlobalContext } from '../Context'
 const Star = ({ position, magnitude }) => {
     return (
       <mesh position={position}>
@@ -13,8 +14,8 @@ const Star = ({ position, magnitude }) => {
     );
   };
 const Stars = ({ra,dec,sy_dist}) => {
-    
     const [stars,setStars] = useState([])
+    const {setStarData} = useGlobalContext()
     let {planetName} = useParams()
     planetName = planetName.split("_").join(" ")
     const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
@@ -31,6 +32,7 @@ const Stars = ({ra,dec,sy_dist}) => {
                 const [ab , ...data2] = data
                 console.log(data2[0])
                 setStars(data2);
+                setStarData(data2)
                 // console.log(data);
             } catch (error) {
                 console.error('Error fetching star data:', error);

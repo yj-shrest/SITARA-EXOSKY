@@ -3,10 +3,10 @@ import React, { useState, useContext, useReducer } from "react";
 const AppContext = React.createContext();
 
 const AppProvider = ({ children }) => {
-    const [selectedPlanet, setSelectedPlanet] = useState({
-    });
+    const [starData, setStarData] = useState([]);
+    const [selectedPlanet, setSelectedPlanet] = useState({});
     return (
-    <AppContext.Provider value={{ selectedPlanet, setSelectedPlanet }}>
+    <AppContext.Provider value={{ selectedPlanet, setSelectedPlanet, starData, setStarData }}>
       {children}
     </AppContext.Provider>
   );

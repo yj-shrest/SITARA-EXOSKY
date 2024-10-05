@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get('/api/getStarData', [], async (req, res) => {
   
-    const { ra, dec, searchRadius, magLimit, limit = 1000, offset = 0 } = req.query;
+    const { ra, dec, searchRadius, magLimit, limit = 10000, offset = 0 } = req.query;
    
     const limitNum = parseInt(limit, 10);
     const offsetNum = parseInt(offset, 10);

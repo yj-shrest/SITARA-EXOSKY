@@ -8,6 +8,7 @@ import { useGlobalContext } from "../components/Context";
 import {useParams} from "react-router-dom"
 import planetData from "../planets.json"
 import CustomControls from "../components/Exoplanet/CustomControls"
+import { Link } from "react-router-dom";
 extend({ OrbitControls });
 
 
@@ -66,7 +67,7 @@ const Scene = (originShift) => {
 };
 
 export default function Exoplanet() {
-  const {selectedPlanet} = useGlobalContext()
+  const {selectedPlanet, setStars} = useGlobalContext()
   // const {ra,dec,sy_dist:distance} = selectedPlanet
   let {planetName} = useParams()
   planetName = planetName.split("_").join(" ")
@@ -80,6 +81,13 @@ export default function Exoplanet() {
         <Scene />
         <CustomControls />
       </Canvas>
+      <button className="bg-blue-600 text-white px-4 py-2 rounded mt-2 self-center" onClick={() => {
+        setStars([])
+      }}>
+              <Link to={`/skymap2d`}>
+              Draw Constellation
+              </Link>
+            </button>
     </div>
   );
 }
