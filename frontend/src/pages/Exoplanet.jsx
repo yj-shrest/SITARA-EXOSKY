@@ -7,7 +7,7 @@ import { useRef } from "react";
 import { useGlobalContext } from "../components/Context";
 import {useParams} from "react-router-dom"
 import planetData from "../planets.json"
-
+import CustomControls from "../components/Exoplanet/CustomControls"
 extend({ OrbitControls });
 
 
@@ -16,8 +16,8 @@ const convertToCartesian = ({ ra, dec, distance }) => {
   const theta = (90 - dec) * (Math.PI / 180); // Declination to radians
   const phi = ra * (Math.PI / 180); // Right Ascension to radians
   const x = distance * Math.sin(theta) * Math.cos(phi);
-  const y = distance * Math.cos(theta);
-  const z = distance * Math.sin(theta) * Math.sin(phi);
+  const y = distance * Math.sin(theta) * Math.sin(phi);
+  const z = distance * Math.cos(theta);
   return { x, y, z };
 };
 
@@ -26,8 +26,8 @@ const TexturedPlane = () => {
   const texture = new THREE.TextureLoader().load("/Venusian.png");
 
   return (
-    <mesh position={[0, -2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[500, 500]} />
+    <mesh position={[0, -10, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[1100, 1100]} />
       <meshStandardMaterial map={texture} />
     </mesh>
   );

@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 const CustomControls = () => {
   const { camera, gl } = useThree();
-  const target = new THREE.Vector3(0, 0, -10); // Set target point to look at
+  const target = new THREE.Vector3(0, 0, 0); // Set target point to look at
 
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
@@ -15,8 +15,8 @@ const CustomControls = () => {
     controls.enabled = true;
     controls.enableDamping = true;
     controls.dampingFactor = 0.2;
-    controls.enableZoom = false;
-    controls.enablePan = false;
+    controls.enableZoom = true;
+    controls.enablePan = true;
     controls.minDistance = 1;
     controls.maxDistance = Infinity;
     controls.enableKeyboardNavigation = true;
