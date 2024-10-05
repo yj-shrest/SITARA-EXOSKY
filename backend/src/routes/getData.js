@@ -8,31 +8,38 @@ const router = express.Router();
 
 router.get('/api/getStarData', [], async (req, res) => {
   
-    const { ra, dec, searchRadius, magLimit, limit = 1000, offset = 0 } = req.query;
+    const { ra, dec, searchRadius, magLimit, limit = 100, offset = 0, dist, plusminus } = req.query;
    
     const limitNum = parseInt(limit, 10);
     const offsetNum = parseInt(offset, 10);
 
     const url = "https://gea.esac.esa.int/tap-server/tap/sync";
+    const upperBound = Number(dist) + Number(plusminus);
+const lowerBound = dist - plusminus;
+
+console.log(upperBound, lowerBound)
 
 
     const query = `
-    SELECT TOP ${limitNum} 
-      gaia_source.source_id,
-      gaia_source.ra,
-      gaia_source.dec,
-      gaia_source.parallax,
-      gaia_source.distance_gspphot,
-      gaia_source.phot_g_mean_mag,
-      gaia_source.bp_rp
-    FROM gaiadr3.gaia_source
-    WHERE 1=CONTAINS(
-      POINT('ICRS', gaia_source.ra, gaia_source.dec),
-      CIRCLE('ICRS', ${ra}, ${dec}, ${searchRadius}))
-    AND gaia_source.phot_g_mean_mag <= ${magLimit}
-    AND gaia_source.parallax IS NOT NULL
-    ORDER BY gaia_source.distance_gspphot ASC
-    OFFSET ${offset}
+    
+    SELECT 
+  gaia_source.source_id,
+  gaia_source.ra,
+  gaia_source.dec,
+  gaia_source.parallax,
+  gaia_source.distance_gspphot,
+  gaia_source.phot_g_mean_mag,
+  gaia_source.bp_rp
+FROM gaiadr3.gaia_source
+WHERE 1=CONTAINS(
+  POINT('ICRS', gaia_source.ra, gaia_source.dec),
+  CIRCLE('ICRS', ${ra}, ${dec}, ${searchRadius}))
+AND gaia_source.phot_g_mean_mag <= ${magLimit}
+AND gaia_source.distance_gspphot <= ${upperBound}
+AND gaia_source.distance_gspphot >= ${lowerBound}
+AND gaia_source.parallax IS NOT NULL
+ORDER BY gaia_source.distance_gspphot ASC;
+   
 `;
 
     try {
@@ -58,7 +65,7 @@ router.get('/api/getStarData', [], async (req, res) => {
             "data": formatted,
             "limit": limitNum,
             "offset": offsetNum,
-            "total": response.data.total_count // You might want to include the total count for better pagination
+            "total": formatted.length 
         });
 
     } catch (error) {
