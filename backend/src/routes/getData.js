@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/api/getStarData', [], async (req, res) => {
   
     const { ra, dec, searchRadius, magLimit, limit = 1000, offset = 0 } = req.query;
-   
+   console.log("requested")
     const limitNum = parseInt(limit, 10);
     const offsetNum = parseInt(offset, 10);
 
@@ -53,18 +53,18 @@ router.get('/api/getStarData', [], async (req, res) => {
 
         const formatted = formatStarData(response.data.data);
 
-        return res.status(200).send({
-            "message": "Fetch successful!",
-            "data": formatted,
-            "limit": limitNum,
-            "offset": offsetNum,
-            "total": response.data.total_count // You might want to include the total count for better pagination
+        return res.status(200).json({
+          message: "Fetch successful!",
+          data: formatted,
+          limit: limitNum,
+          offset: offsetNum,
+          total: response.data.total_count, // You might want to include the total count for better pagination
         });
 
     } catch (error) {
         console.error(`Error: ${error.message}`);
         if (error.response) {
-            return res.status(error.response.status).send({"error": error.response.data});
+            return res.status(error.response.status).json({error: error.response.data});
         }
         return res.status(500).send({"error": "An unexpected error occurred."});
     }

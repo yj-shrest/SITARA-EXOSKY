@@ -26,6 +26,7 @@ const Stars = ({ra,dec,sy_dist}) => {
                 const response = await axios.get(`http://localhost:4000/api/getStarData?ra=${ra}&dec=${dec}&searchRadius=20&magLimit=10`);
                 
                 // Directly use response.data, assuming the data is already in JSON format
+                console.log(response.data.data)
                 const data = response.data.data;
                 console.log(data[0])
                 const [ab , ...data2] = data
