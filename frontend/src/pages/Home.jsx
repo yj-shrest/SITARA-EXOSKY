@@ -36,11 +36,18 @@ const MovingPointLight = () => {
 export default function Home() {
   const {selectedPlanet, setSelectedPlanet} = useGlobalContext()
   
+    useEffect(() => {
+      setTimeout(() => {
+        setLoading(false);
+      }, [5000]);
+    }, []);
 
   const handleSelectPlanet = (planet) => {
     setSelectedPlanet(planet)
   }
   const [textures, setTextures] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const loader = new TextureLoader();
     const loadedTextures = texturesList.map(path => {
@@ -96,8 +103,10 @@ export default function Home() {
               {selectedPlanet.pl_name}
             </p>
             <p className="text-white text-sm">{`Host Star: ${selectedPlanet.hostname}`}</p>
-            <p className="text-white text-sm">{`Distance: ${selectedPlanet.sy_dist!==null?selectedPlanet.sy_dist+
-              "parsecs": "Unknown"
+            <p className="text-white text-sm">{`Distance: ${
+              selectedPlanet.sy_dist !== null
+                ? selectedPlanet.sy_dist + "parsecs"
+                : "Unknown"
             }`}</p>
             <p className="text-white text-sm">{`Radius: ${
               selectedPlanet.pl_rade !== null
@@ -120,11 +129,21 @@ export default function Home() {
                 : "Unknown"
             } `}</p>
             <p className="text-white text-sm">{`Discovery Year: ${selectedPlanet.disc_year}`}</p>
-            <button className="bg-blue-600 text-white px-4 py-2 rounded mt-2 self-center" >
-              <Link to={`/exoplanet/${selectedPlanet.pl_name.split(" ").join("_")}`}>
-              View Nightsky
+            <button className="bg-blue-600 text-white px-4 py-2 rounded mt-2 self-center">
+              <Link
+                to={`/exoplanet/${selectedPlanet.pl_name.split(" ").join("_")}`}
+              >
+                View Nightsky
               </Link>
             </button>
+          </div>
+        )}
+
+
+/////////loader here
+        {loading && (
+          <div className="w-full h-full top-0 left-0 absolute object-contain flex items-center justify-center bg-[#0a1314]">
+            <img src="/loading.gif" alt="" classname="h-full w-full" />
           </div>
         )}
       </div>

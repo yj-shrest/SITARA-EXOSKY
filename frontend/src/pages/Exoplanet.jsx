@@ -2,8 +2,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { Canvas, useThree, extend } from "@react-three/fiber";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as THREE from 'three';
-import Stars from "../components/Exoplanet/Stars";
-import { useGlobalContext } from "../components/Context";
 import {useParams} from "react-router-dom"
 import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
@@ -16,14 +14,20 @@ import { useGlobalContext } from "../components/Context";
 import Stars from "../components/Exoplanet/Stars";
 import planetData from "../planets.json"
 import CustomControls from "../components/Exoplanet/CustomControls"
-import SkyMap2D from "../pages/SkyMap2D"
-import {useState} from "react";
 
 
 extend({ OrbitControls });
 
 
 // Convert exoplanet RA/Dec/Distance to Cartesian coordinates
+const convertToCartesian = ({ ra, dec, distance }) => {
+  const theta = (90 - dec) * (Math.PI / 180); // Declination to radians
+  const phi = ra * (Math.PI / 180); // Right Ascension to radians
+  const x = distance * Math.sin(theta) * Math.cos(phi);
+  const y = distance * Math.sin(theta) * Math.sin(phi);
+  const z = distance * Math.cos(theta);
+  return { x, y, z };
+};
 
 const TexturedPlane = () => {
   const texture = new THREE.TextureLoader().load("/Venusian.png");
@@ -40,14 +44,12 @@ const TexturedPlane = () => {
 
     // Convert to degrees
     const pitchDegrees = THREE.MathUtils.radToDeg(pitch);
-    console.log(pitchDegrees)
     // Calculate opacity based on pitch (up and down)
     // Invert the logic: when looking down, opacity should decrease
     // const opacity = Math.max(0, Math.min(1, (pitchDegrees - 90) / -90));// Adjust this logic
     const opacity = pitchDegrees<0?(90+pitchDegrees)/90:1;// Adjust this logic
 
     // Log the pitch and opacity values
-    console.log("Pitch in degrees:", pitchDegrees, "Opacity:", opacity);
 
     // Update the material's opacity
     if (materialRef.current) {
@@ -68,7 +70,8 @@ const TexturedPlane = () => {
   );
 };
 
-const Scene = () => {
+
+const Scene = (originShift) => {
   // const {ra,dec,sy_dist} = selectedPlanet
   let {planetName} = useParams()
   planetName = planetName.split("_").join(" ")
@@ -76,6 +79,16 @@ const Scene = () => {
   // const groupRef = useRef()
   const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
   const {ra,dec,sy_dist} = singlePlanetData
+  
+  // useEffect(() => {
+  //   if (groupRef.current) {
+  //     groupRef.current.position.set(
+  //       -originShift.x,
+  //       -originShift.y,
+  //       -originShift.z
+  //     ); // Shift the origin
+  //   }
+  // }, [originShift]);
   return (
     <>
     <group>
@@ -84,34 +97,43 @@ const Scene = () => {
       <TexturedPlane />
       </group>
       {/* <FloatingSpheres /> */}
-      <Stars ra={ra} dec={dec} sy_dist = {sy_dist} />
+      <Stars ra={ra} dec={dec} sy_dist ={sy_dist} />
     </>
   );
 };
 
 export default function Exoplanet() {
-  const [skymap2d, setSkymap2d] = useState(false)
-  // const {selectedPlanet, setSelectedPlanet} = useGlobalContext()
-  // // const {ra,dec,sy_dist:distance} = selectedPlanet
+  const {selectedPlanet} = useGlobalContext()
+  const [isNorthPole, setIsNorthPole] = useState(true)
+  // const {ra,dec,sy_dist:distance} = selectedPlanet
   let {planetName} = useParams()
   planetName = planetName.split("_").join(" ")
   const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
-  const {ra:planetRa,dec:planetDec,sy_dist:planetDistance} = singlePlanetData
-  // const exoplanetPosition = convertToCartesian({ra, dec, distance});
-  // console.log(selectedPlanet)
-  const handleOnclick = () => {
-    setSkymap2d(true)
-  }
-  if(!skymap2d){
+  const {ra,dec,sy_dist:distance} = singlePlanetData
+  const exoplanetPosition = convertToCartesian({ra, dec, distance});
+  console.log(selectedPlanet)
+
+  const [loading, setLoading] = useState(true)
+
+  useEffect(()=>{
+    setTimeout(()=>{setLoading(false)}, [5000])
+  }, [])
+
   return (
     <div className="w-full h-screen" style={{ backgroundColor: "black" }}>
       <Canvas>
         <Scene />
         <CustomControls />
       </Canvas>
-      <button className="bg-blue-600 text-white px-4 py-2 rounded mt-2 self-center" onClick={()=>handleOnclick()}>
-        Draw Constellation
-            </button>
+
+     {loading&& <div className = "w-full h-full top-0 left-0 absolute object-contain flex items-center justify-center bg-[#0a1314]">
+        <img src="/loading.gif" alt=""  className= "h-full w-full"/>
+        </div>  
+}
+      <button className="absolute top-[2rem] bg-blue-600 px-4 py-2 text-white right-[2rem] rounded">
+        {`${
+        isNorthPole ? "View South Pole" : "View North Pole"
+      }`}</button>
       <button className="absolute top-[2rem] px-4 py-2 text-white left-[2rem] flex align-start rounded">
         <Link to ="/">
         <IoArrowBackCircleOutline size = {30} />
@@ -121,11 +143,4 @@ export default function Exoplanet() {
       </button>
     </div>
   );
-}
-else{
-  return(
-    <SkyMap2D planetRa={planetRa} planetDec={planetDec} planetDistance={planetDistance}/>
-  )
-}
-
 }
