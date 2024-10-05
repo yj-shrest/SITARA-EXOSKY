@@ -1,13 +1,15 @@
 import React, { useRef, useEffect } from "react";
-import { Canvas, useThree, extend } from "@react-three/fiber";
+import { Canvas, useThree, extend, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import *  as THREE from "three"
+import { TextureLoader } from "three";
+import * as THREE from 'three'
 
 extend({ OrbitControls });
 
 const CustomControls = () => {
   const { camera, gl } = useThree();
-  const target = new THREE.Vector3(0, 0, 0); // Set target point to look at
+  const target = new THREE.Vector3(0, 0, -10); // Set target point to look at
+
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
 
@@ -40,7 +42,7 @@ const CustomControls = () => {
         controls.object.position.y,
         controls.object.position.z
       );
-      camera.lookAt(target);
+      camera.lookAt(target); // Look at the target point
     });
 
     // Clean up on component unmount
@@ -65,7 +67,6 @@ const FloatingSpheres = () => {
       <mesh position={position} key={i}>
         <sphereGeometry args={[1, 32, 32]} />
         <meshStandardMaterial color="white" />
-        <></>
       </mesh>
     );
   }
@@ -73,18 +74,24 @@ const FloatingSpheres = () => {
   return <>{spheres}</>;
 };
 
+const TexturedPlane = () => {
+  // Load the texture using useLoader
+  const texture = useLoader(TextureLoader, "/Venusian.png"); // Update the path to your texture file
+
+  return (
+    <mesh position={[0, -2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <planeGeometry args={[500, 500, 50, 50]} />
+      <meshStandardMaterial map={texture} />
+    </mesh>
+  );
+};
+
 const Scene = () => {
   return (
     <>
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} />
-
-      {/* Adjust the plane's position */}
-      <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[500, 500, 50, 50]} />
-        <meshStandardMaterial color="gray" />
-      </mesh>
-
+      <TexturedPlane />
       <FloatingSpheres />
     </>
   );
@@ -93,7 +100,7 @@ const Scene = () => {
 export default function Exoplanet() {
   return (
     <div className="w-full h-screen" style={{ backgroundColor: "black" }}>
-      <Canvas camera={{ position: [0, 0, 1], fov: 60 }}>
+      <Canvas camera={{ position: [0, 10, 10], fov: 60 }}>
         <Scene />
         <CustomControls />
       </Canvas>
