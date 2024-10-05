@@ -13,9 +13,10 @@ router.get('/api/getStarData', [],
 
         const {ra, dec, searchRadius, magLimit} = req.query
         const url = "https://gea.esac.esa.int/tap-server/tap/sync";
-
+        console.log("Requestesd")
+        console.log(ra, dec, searchRadius, magLimit)
         const query = `
-          SELECT TOP 10000 
+          SELECT TOP 1000
         gaia_source.source_id,
         gaia_source.ra,   -- Include RA
         gaia_source.dec,

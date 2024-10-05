@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import planetsData from '../pages/planets.json'
+import planetsData from '../planets.json'
 
 function PlanetSearch({ onSelectPlanet }) {
     const [search, setSearch] = useState('')

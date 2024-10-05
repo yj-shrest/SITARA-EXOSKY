@@ -4,12 +4,12 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import * as THREE from 'three';
 import Stars from "../components/Exoplanet/Stars";
 import { useRef } from "react";
+import { useGlobalContext } from "../components/Context";
+import {useParams} from "react-router-dom"
+import planetData from "../planets.json"
+
 extend({ OrbitControls });
-const exoplanetData = {
-  ra: 10, // Right Ascension in degrees
-  dec: 40, // Declination in degrees
-  distance: 21.1397, // Distance in parsecs
-};
+
 
 // Convert exoplanet RA/Dec/Distance to Cartesian coordinates
 const convertToCartesian = ({ ra, dec, distance }) => {
@@ -19,40 +19,6 @@ const convertToCartesian = ({ ra, dec, distance }) => {
   const y = distance * Math.cos(theta);
   const z = distance * Math.sin(theta) * Math.sin(phi);
   return { x, y, z };
-};
-const CustomControls = () => {
-  const { camera, gl } = useThree();
-  
-  useEffect(() => {
-    // Initialize OrbitControls with a fixed camera position
-    const controls = new OrbitControls(camera, gl.domElement);
-
-    // Disable zooming and panning
-    controls.enableZoom = false;
-    controls.enablePan = false;
-
-    // Allow rotation around a fixed position
-    controls.enableDamping = true; 
-    controls.dampingFactor = 0.1;  // Smooth rotation
-    controls.rotateSpeed = 0.8;    // Control the rotation speed
-    
-    // Set the camera to look at a central target (e.g., 0, 0, 0)
-    const target = new THREE.Vector3(0, 0, 0);
-    camera.position.set(0, 10, 20); // Fixed camera position
-    camera.lookAt(target);
-
-    // Keep the camera looking at the target during rotation
-    controls.addEventListener("change", () => {
-      camera.lookAt(target);
-    });
-
-    // Clean up the controls on unmount
-    return () => {
-      controls.dispose();
-    };
-  }, [camera, gl]);
-
-  return null;
 };
 
 const TexturedPlane = () => {
@@ -68,36 +34,50 @@ const TexturedPlane = () => {
 };
 
 const Scene = (originShift) => {
-  const groupRef = useRef()
-  useEffect(() => {
-    if (groupRef.current) {
-      groupRef.current.position.set(
-        -originShift.x,
-        -originShift.y,
-        -originShift.z
-      ); // Shift the origin
-    }
-  }, [originShift]);
+  const {selectedPlanet} = useGlobalContext()
+  // const {ra,dec,sy_dist} = selectedPlanet
+  let {planetName} = useParams()
+  planetName = planetName.split("_").join(" ")
+
+  // const groupRef = useRef()
+  const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
+  const {ra,dec,sy_dist} = singlePlanetData
+  
+  // useEffect(() => {
+  //   if (groupRef.current) {
+  //     groupRef.current.position.set(
+  //       -originShift.x,
+  //       -originShift.y,
+  //       -originShift.z
+  //     ); // Shift the origin
+  //   }
+  // }, [originShift]);
   return (
     <>
-    <group ref={groupRef}>
+    <group>
       <ambientLight intensity={0.5} />
       <pointLight position={[10, 10, 10]} />
       <TexturedPlane />
       </group>
       {/* <FloatingSpheres /> */}
-      <Stars ra={10} dec={40}/>
+      <Stars ra={ra} dec={dec} sy_dist = {sy_dist} />
     </>
   );
 };
 
 export default function Exoplanet() {
-  const exoplanetPosition = convertToCartesian(exoplanetData);
-
+  const {selectedPlanet} = useGlobalContext()
+  // const {ra,dec,sy_dist:distance} = selectedPlanet
+  let {planetName} = useParams()
+  planetName = planetName.split("_").join(" ")
+  const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
+  const {ra,dec,sy_dist:distance} = singlePlanetData
+  const exoplanetPosition = convertToCartesian({ra, dec, distance});
+  console.log(selectedPlanet)
   return (
     <div className="w-full h-screen" style={{ backgroundColor: "black" }}>
       <Canvas>
-        <Scene originShift={exoplanetPosition} />
+        <Scene />
         <CustomControls />
       </Canvas>
     </div>

@@ -1,6 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-unknown-property */
 import React, { useState, useEffect } from 'react'
+
 import axios from 'axios'
 const Star = ({ position, magnitude }) => {
     return (
@@ -10,11 +11,12 @@ const Star = ({ position, magnitude }) => {
       </mesh>
     );
   };
-const Stars = ({ra,dec}) => {
-
+const Stars = ({ra,dec,sy_dist}) => {
+    
     const [stars,setStars] = useState([])
     useEffect(() => {
         const fetchStars = async () => {
+            console.log("Fetching stars")
             try {
                 const response = await axios.get(`http://localhost:4000/api/getStarData?ra=${ra}&dec=${dec}&searchRadius=20&magLimit=10`);
                 const data = JSON.parse(response.data.data);
@@ -37,11 +39,13 @@ const Stars = ({ra,dec}) => {
         const x = radius * Math.sin(theta) * Math.cos(phi);
         const y = radius * Math.sin(theta) * Math.sin(phi); // Should use sin(theta)
         const z = radius * Math.cos(theta); // Should use cos(theta)
+
+        
         return (
           <Star
             key={index}
             position={[x, y, z]}
-            magnitude={star.Magnitude / 500}
+            magnitude={star.Magnitude / 50}
           />
         );
       })}

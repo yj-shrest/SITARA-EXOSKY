@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable react/no-unknown-property */
 import { useState } from 'react'
-import planetsData from '../pages/planets.json'
+import planetsData from '../planets.json'
 import { TextureLoader } from 'three';
 import { useEffect } from 'react';
 
