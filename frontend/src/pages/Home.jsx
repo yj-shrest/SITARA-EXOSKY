@@ -74,6 +74,11 @@ export default function Home() {
         {/* <input type="text" className='bg-white rounded-[5rem] my-8 w-[20rem] mr-16 pl-12 text-[1rem] font-medium' placeholder='Search for Exoplanet'/> */}
         <PlanetSearch onSelectPlanet={handleSelectPlanet} />
       </div>
+      {loading && (
+          <div className="w-full h-full top-[10vh] left-0 absolute object-contain flex items-center justify-center bg-[#0a1314]">
+            <img src="/loading.gif" alt="" classname="h-full w-auto" />
+          </div>
+        )}
       <div className="flex justify-center items-center  bg-black h-[90vh]">
         <Canvas>
           <ambientLight intensity={0.8} />
@@ -141,11 +146,7 @@ export default function Home() {
 
 
 /////////loader here
-        {loading && (
-          <div className="w-full h-full top-0 left-0 absolute object-contain flex items-center justify-center bg-[#0a1314]">
-            <img src="/loading.gif" alt="" classname="h-full w-full" />
-          </div>
-        )}
+       
       </div>
     </div>
   );

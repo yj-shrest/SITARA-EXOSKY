@@ -5,9 +5,17 @@ import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import planetData from '../../planets.json'
 import { useGlobalContext } from '../Context'
+
+
+
 const Star = ({ position, magnitude }) => {
-    return (
-      <mesh position={position}>
+  const {setSelectedPoints} = useGlobalContext()
+  const handleStarClick = () => {
+    setSelectedPoints((prevPoints) => [...prevPoints, position]);
+    console.log(position)
+  }
+  return (
+      <mesh position={position} onClick={handleStarClick}>
         <sphereGeometry args={[magnitude, 16, 16]} />
         <meshBasicMaterial color={"white"} />
       </mesh>
@@ -24,10 +32,8 @@ const Stars = ({ra,dec,sy_dist}) => {
         const fetchStars = async () => {
             console.log("Fetching stars");
             try {
-                const response = await axios.get(`http://localhost:4000/api/getStarData?ra=${ra}&dec=${dec}&dist=${sy_dist}&plusminus=200`);
-                console.log(
-                  `http://localhost:4000/api/getStarData?ra=${ra}&dec=${dec}&dist=${sy_dist}&plusminus=200&searchRadius=20&magLimit=10`
-                );
+                const response = await axios.get(`http://localhost:4000/api/getStarData?ra=${ra}&dec=${dec}&searchRadius=20&magLimit=10&dist=${sy_dist}&plusminus=200`);
+                console.log(response.data.total)
                 // Directly use response.data, assuming the data is already in JSON format
                 console.log(response.data.data)
                 const data = response.data.data;

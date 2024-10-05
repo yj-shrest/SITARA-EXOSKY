@@ -4,15 +4,15 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { TextureLoader } from "three";
 import * as THREE from "three";
 
-const CustomControls = () => {
+const CustomControls = ({disable}) => {
   const { camera, gl } = useThree();
   const target = new THREE.Vector3(0, 0, 0); // Set target point to look at
 
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
-
+    console.log(disable)
     // Set custom options
-    controls.enabled = true;
+    controls.enabled = !disable;
     controls.enableDamping = true;
     controls.dampingFactor = 0.2;
     controls.enableZoom = true;
@@ -47,7 +47,7 @@ const CustomControls = () => {
     return () => {
       controls.dispose();
     };
-  }, [camera, gl]);
+  }, [camera, gl, disable]);
 
   return null;
 };

@@ -7,7 +7,8 @@ import { IoArrowBackCircleOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { useFrame } from "@react-three/fiber";
 import { AxesHelper } from "three";
-
+// import { LineCurve3 } from "three";
+import { Line } from "@react-three/drei";
 
 
 import { useGlobalContext } from "../components/Context";
@@ -70,50 +71,105 @@ const TexturedPlane = () => {
   );
 };
 
+const ConstellationLines = ({ points }) => {
+  return (
+    <Line
+      points={points} // Array of [x, y, z] positions
+      color="yellow"
+      lineWidth={2}
+      dashed={false}
+    />
+  );
+};
 
-const Scene = (originShift) => {
+
+const Scene = () => {
   // const {ra,dec,sy_dist} = selectedPlanet
   let {planetName} = useParams()
   planetName = planetName.split("_").join(" ")
-
+  const {selectedPoints} = useGlobalContext()
   // const groupRef = useRef()
   const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
   const {ra,dec,sy_dist} = singlePlanetData
-  
-  // useEffect(() => {
-  //   if (groupRef.current) {
-  //     groupRef.current.position.set(
-  //       -originShift.x,
-  //       -originShift.y,
-  //       -originShift.z
-  //     ); // Shift the origin
-  //   }
-  // }, [originShift]);
+  const { gl, scene, camera } = useThree(); // Access the WebGL context, scene, and camera
+
+  const captureScreenshot = () => {
+    // Create a new canvas to render the current scene to
+    const screenshotCanvas = document.createElement("canvas");
+    const context = screenshotCanvas.getContext("2d");
+
+    // Set the size of the canvas
+    screenshotCanvas.width = window.innerWidth; // Or any specific width
+    screenshotCanvas.height = window.innerHeight; // Or any specific height
+
+    // Render the current scene into the screenshotCanvas
+    gl.setSize(screenshotCanvas.width, screenshotCanvas.height); // Set the size for the WebGL context
+    gl.render(scene, camera); // Render the scene to the WebGL context
+
+    // Read the pixels from the WebGL canvas
+    const data = new Uint8Array(screenshotCanvas.width * screenshotCanvas.height * 4);
+    gl.readPixels(0, 0, screenshotCanvas.width, screenshotCanvas.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
+
+    // Create an ImageData object and draw it on the 2D context
+    const imageData = new ImageData(new Uint8ClampedArray(data), screenshotCanvas.width, screenshotCanvas.height);
+    context.putImageData(imageData, 0, 0);
+
+    // Convert the canvas to a data URL and download it
+    const screenshot = screenshotCanvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = screenshot;
+    link.download = "screenshot.png";
+    link.click();
+  };
+
   return (
     <>
-    <group>
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} />
-      <TexturedPlane />
+      <group>
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} />
+        <TexturedPlane />
       </group>
-      {/* <FloatingSpheres /> */}
-      <Stars ra={ra} dec={dec} sy_dist ={sy_dist} />
+      <Stars ra={ra} dec={dec} sy_dist={sy_dist} />
+      {/* {
+        // Use map to create LineSegments between consecutive points
+        selectedPoints.map((point, i) => {
+          if (i < selectedPoints.length - 1) {
+            return <LineSegment key={i} start={selectedPoints[i]} end={selectedPoints[i + 1]} />;
+          }
+          return null; // Avoid rendering for the last point
+        })
+      } */}
+      {selectedPoints.length>0&&<ConstellationLines points={selectedPoints} />}
     </>
   );
 };
 
+const LineSegment = ({ start, end }) => {
+  const curveRef = React.useRef();
+
+  const points = React.useMemo(() => {
+    const curve = new LineCurve3(new THREE.Vector3(...start), new THREE.Vector3(...end));
+    return curve.getPoints(50); // Get points along the curve
+  }, [start, end]);
+
+  return (
+    <line ref={curveRef}>
+      <bufferGeometry attach="geometry" setFromPoints={points.map((p) => new THREE.Vector3(p.x, p.y, p.z))} />
+      <lineBasicMaterial attach="material" color="yellow" linewidth={5} />
+    </line>
+  );
+};
+
 export default function Exoplanet() {
-  const {selectedPlanet} = useGlobalContext()
-  const [isNorthPole, setIsNorthPole] = useState(true)
-  // const {ra,dec,sy_dist:distance} = selectedPlanet
-  let {planetName} = useParams()
-  planetName = planetName.split("_").join(" ")
-  const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
-  const {ra,dec,sy_dist:distance} = singlePlanetData
-  const exoplanetPosition = convertToCartesian({ra, dec, distance});
-  console.log(selectedPlanet)
+  const [drawing, setDrawing] = useState(false)
+
+  
 
   const [loading, setLoading] = useState(true)
+
+  const onhandleClick = () => {
+    setDrawing(true)
+  }
 
   useEffect(()=>{
     setTimeout(()=>{setLoading(false)}, [5000])
@@ -123,23 +179,26 @@ export default function Exoplanet() {
     <div className="w-full h-screen" style={{ backgroundColor: "black" }}>
       <Canvas>
         <Scene />
-        <CustomControls />
+        <CustomControls disable={drawing}/>
       </Canvas>
 
      {loading&& <div className = "w-full h-full top-0 left-0 absolute object-contain flex items-center justify-center bg-[#0a1314]">
-        <img src="/loading.gif" alt=""  className= "h-full w-full"/>
+        <img src="/loading.gif" alt=""  className= "h-full w-auto"/>
         </div>  
 }
-      <button className="absolute top-[2rem] bg-blue-600 px-4 py-2 text-white right-[2rem] rounded">
-        {`${
-        isNorthPole ? "View South Pole" : "View North Pole"
-      }`}</button>
+      <div className="absolute top-[2rem] right-[2rem] flex gap-[1rem]">
+
+      {!drawing &&<button className="bg-blue-600 px-4 py-2 text-white rounded" onClick={onhandleClick}>
+        Draw Constellation
+        </button>}
+        <button className="bg-blue-600 px-4 py-2 text-white  rounded" >
+        Save Image
+        </button>
+      </div>
       <button className="absolute top-[2rem] px-4 py-2 text-white left-[2rem] flex align-start rounded">
         <Link to ="/">
         <IoArrowBackCircleOutline size = {30} />
         </Link>
-          
-            
       </button>
     </div>
   );
