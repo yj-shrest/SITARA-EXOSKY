@@ -76,7 +76,7 @@ export default function Home() {
       </div>
       {loading && (
           <div className="w-full h-full top-[10vh] left-0 absolute object-contain flex items-center justify-center bg-[#0a1314]">
-            <img src="/loading.gif" alt="" classname="h-full w-auto" />
+            <img src="/loading.gif" alt="" className="h-full w-auto" />
           </div>
         )}
       <div className="flex justify-center items-center  bg-black h-[90vh]">
