@@ -71,7 +71,6 @@ export default function Home() {
           />
           <p className="text-[2rem] font-semibold">Sitara</p>
         </div>
-        {/* <input type="text" className='bg-white rounded-[5rem] my-8 w-[20rem] mr-16 pl-12 text-[1rem] font-medium' placeholder='Search for Exoplanet'/> */}
         <PlanetSearch onSelectPlanet={handleSelectPlanet} />
       </div>
       {loading && (

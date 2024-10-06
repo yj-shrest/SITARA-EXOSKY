@@ -24,7 +24,7 @@ const Planet = ({planet, position = [0, 0, 0], size = 1, texture, onSelectPlanet
     const [earthTexture, setEarthTexture] = useState(null);
     useEffect(() => {
       const loader = new TextureLoader();
-      loader.load('/Textures/Terrestrial1.png', (loadedTexture) => {
+      loader.load('/Textures/earth.jpg', (loadedTexture) => {
         setEarthTexture(loadedTexture);
       });
     }, []); 
@@ -63,7 +63,7 @@ function Galaxy({textures, onSelectPlanet}){
           const ra = planet.ra
           const dec = planet.dec
   
-          if (ra === undefined || dec === undefined || distance === undefined) return null // Skip if data is missing
+          if (ra === undefined || dec === undefined || distance === null) return null // Skip if data is missing
   
           return (
             <Planet 
