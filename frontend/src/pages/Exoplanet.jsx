@@ -29,7 +29,7 @@ const convertToCartesian = ({ ra, dec, distance }) => {
 };
 
 const TexturedPlane = () => {
-  const texture = new THREE.TextureLoader().load("/Venusian.png");
+  const texture = new THREE.TextureLoader().load(`/planets/${Math.floor(Math.random()*13)+1}.jpg`);
   const materialRef = useRef();
   const { camera } = useThree();
 
