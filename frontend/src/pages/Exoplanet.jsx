@@ -81,43 +81,6 @@ const ConstellationLines = ({ points }) => {
 };
 
 
-// const Scene = forwardRef((props, ref) => {
-//     const { gl, scene, camera } = useThree(); // Access the WebGL context, scene, and camera
-//   let {planetName} = useParams()
-//   planetName = planetName.split("_").join(" ")
-//   const {selectedPoints} = useGlobalContext()
-//   // const groupRef = useRef()
-//   const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
-//   const {ra,dec,sy_dist} = singlePlanetData
-//   useImperativeHandle(ref, () => ({
-//     captureScreenshot() {
-//       // Render the current scene into the WebGL canvas
-//       gl.render(scene, camera);
-
-//       // Convert the canvas to a data URL and download it
-//       const screenshot = gl.domElement.toDataURL("image/png");
-//       const link = document.createElement("a");
-//       link.href = screenshot;
-//       link.download = "screenshot.png";
-//       link.click();
-//     },
-//   }));
-
-//   // The error was that the component didn't return anything
-//   // We need to return the JSX that renders the scene
-//   return (
-//     <>
-//       <group>
-//         <ambientLight intensity={0.5} />
-//         <pointLight position={[10, 10, 10]} />
-//         <TexturedPlane />
-//       </group>
-//       <Stars ra={ra} dec={dec} sy_dist={sy_dist} />
-//       {selectedPoints.length > 0 && <ConstellationLines points={selectedPoints} />}
-//     </>
-//   );
-
-// });
 
 const Scene = forwardRef((props, ref) => {
   const { drawing } = props;

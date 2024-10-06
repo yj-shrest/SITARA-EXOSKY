@@ -1,9 +1,12 @@
 import React, { useState, useContext, useReducer } from "react";
+import earthStars from "../earth_stars.json"
 
 const AppContext = React.createContext();
 
+
+
 const AppProvider = ({ children }) => {
-    const [starData, setStarData] = useState([]);
+    const [starData, setStarData] = useState(earthStars);
     const [selectedPlanet, setSelectedPlanet] = useState({});
     const [selectedPoints, setSelectedPoints] = useState([]);
     return (
