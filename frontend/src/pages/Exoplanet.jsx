@@ -120,6 +120,8 @@ const ConstellationLines = ({ points }) => {
 // });
 
 const Scene = forwardRef((props, ref) => {
+  const { drawing } = props;
+  console.log("drawing from scene", drawing)
   const { gl, scene, camera } = useThree(); // Access the WebGL context, scene, and camera
   let {planetName} = useParams()
   planetName = planetName.split("_").join(" ")
@@ -150,7 +152,7 @@ const Scene = forwardRef((props, ref) => {
         <pointLight position={[10, 10, 10]} />
         <TexturedPlane />
       </group>
-      <Stars ra={ra} dec={dec} sy_dist={sy_dist} />
+      <Stars ra={ra} dec={dec} sy_dist={sy_dist} drawing={drawing} />
       {selectedPoints.length > 0 && <ConstellationLines points={selectedPoints} />}
     </>
   );
@@ -196,7 +198,7 @@ export default function Exoplanet() {
   return (
     <div className="w-full h-screen" style={{ backgroundColor: "black" }}>
       <Canvas>
-        <Scene ref={sceneRef}/>
+        <Scene ref={sceneRef} drawing={drawing}/>
         <CustomControls disable={drawing} />
       </Canvas>
 
