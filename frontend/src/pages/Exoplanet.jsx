@@ -84,7 +84,8 @@ const ConstellationLines = ({ points }) => {
 
 const Scene = forwardRef((props, ref) => {
   const { drawing } = props;
-  console.log("drawing from scene", drawing)
+  const { constellationName } = props;
+  // console.log("drawing from scene", drawing)
   const { gl, scene, camera } = useThree(); // Access the WebGL context, scene, and camera
   let {planetName} = useParams()
   planetName = planetName.split("_").join(" ")
@@ -102,7 +103,7 @@ const Scene = forwardRef((props, ref) => {
       const screenshot = gl.domElement.toDataURL("image/png");
       const link = document.createElement("a");
       link.href = screenshot;
-      link.download = "screenshot.png";
+      link.download = `${constellationName}.jpg`;
       link.click();
     },
   }));
@@ -122,25 +123,10 @@ const Scene = forwardRef((props, ref) => {
 });
 
 
-const LineSegment = ({ start, end }) => {
-  const curveRef = React.useRef();
-
-  const points = React.useMemo(() => {
-    const curve = new LineCurve3(new THREE.Vector3(...start), new THREE.Vector3(...end));
-    return curve.getPoints(50); // Get points along the curve
-  }, [start, end]);
-
-  return (
-    <line ref={curveRef}>
-      <bufferGeometry attach="geometry" setFromPoints={points.map((p) => new THREE.Vector3(p.x, p.y, p.z))} />
-      <lineBasicMaterial attach="material" color="yellow" linewidth={5} />
-    </line>
-  );
-};
-
 export default function Exoplanet() {
   const [drawing, setDrawing] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [constellationName, setConstellationName] = useState("constellation")
   const sceneRef = useRef();
   const onhandleClick = () => {
     setDrawing(true);
@@ -157,11 +143,13 @@ export default function Exoplanet() {
       sceneRef.current.captureScreenshot();
     }
   };
-
+  const handleConstellationName = (e) => {
+    setConstellationName(e.target.value)
+  }
   return (
     <div className="w-full h-screen" style={{ backgroundColor: "black" }}>
       <Canvas>
-        <Scene ref={sceneRef} drawing={drawing}/>
+        <Scene ref={sceneRef} drawing={drawing} constellationName={constellationName}/>
         <CustomControls disable={drawing} />
       </Canvas>
 
@@ -180,6 +168,16 @@ export default function Exoplanet() {
             Draw Constellation
           </button>
         )}
+        {
+          drawing && (
+            <input
+            className="bg-white px-4 py-2 text-black rounded"
+            placeholder="Enter Constellation Name"
+            onChange={handleConstellationName}
+            />
+            
+          )
+        }
         <button
         className="bg-blue-600 px-4 py-2 text-white rounded"
         onClick={handleSaveImage} // Trigger screenshot on button click

@@ -3,16 +3,20 @@ import { Canvas, useThree, extend, useLoader } from "@react-three/fiber";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 import { TextureLoader } from "three";
 import * as THREE from "three";
-
+import  planetData  from "../../planets.json";
+import { useParams } from 'react-router-dom'
+import { useFrame } from "@react-three/fiber";
 const CustomControls = ({disable}) => {
   const { camera, gl } = useThree();
-  const target = new THREE.Vector3(0, 0, 0); // Set target point to look at
-
+  const target = new THREE.Vector3(0, 50, 50); // Set target point to look at
+  let {planetName} = useParams()
+    planetName = planetName.split("_").join(" ")
+    const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
+    const {ra:planetRa,dec:planetDec,sy_dist:planetDistance} = singlePlanetData
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
-    // console.log(disable)
-    // Set custom options
-    controls.enabled = !disable;
+
+    controls.enabled = planetDistance < 20?false:!disable;
     controls.enableDamping = true;
     controls.dampingFactor = 0.2;
     controls.enableZoom = true;
@@ -32,7 +36,7 @@ const CustomControls = ({disable}) => {
     controls.keyboardRotationSpeedPolar = (10 * Math.PI) / 360;
     controls.minZoom = 0;
     controls.maxZoom = Infinity;
-
+    controls.target = new THREE.Vector3(0,2,0)
     // Add event listener for camera movement
     controls.addEventListener("change", () => {
       camera.position.set(
@@ -40,8 +44,8 @@ const CustomControls = ({disable}) => {
         controls.object.position.y,
         controls.object.position.z
       );
-      camera.lookAt(target); // Look at the target point
     });
+    controls.update()
 
     // Clean up on component unmount
     return () => {
@@ -49,7 +53,12 @@ const CustomControls = ({disable}) => {
     };
   }, [camera, gl, disable]);
 
-  return null;
+  return (
+    <mesh position={[0,-50,-50]}>
+    <boxGeometry args={[10,10,10]}/>
+    <meshBasicMaterial color="red"/>
+    </mesh>
+  );
 };
 
 export default CustomControls;

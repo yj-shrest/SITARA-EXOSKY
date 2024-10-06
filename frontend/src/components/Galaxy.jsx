@@ -62,9 +62,8 @@ function Galaxy({textures, onSelectPlanet}){
           const distance = planet.sy_dist 
           const ra = planet.ra
           const dec = planet.dec
-  
           if (ra === undefined || dec === undefined || distance === null) return null // Skip if data is missing
-  
+
           return (
             <Planet 
               planet={planet}

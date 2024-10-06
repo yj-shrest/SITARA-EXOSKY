@@ -142,10 +142,6 @@ export default function Home() {
             </button>
           </div>
         )}
-
-
-/////////loader here
-       
       </div>
     </div>
   );
