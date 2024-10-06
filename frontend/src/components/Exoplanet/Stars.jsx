@@ -8,11 +8,15 @@ import { useGlobalContext } from '../Context'
 
 
 
-const Star = ({ position, magnitude }) => {
+const Star = ({ position, magnitude, drawing }) => {
   const {setSelectedPoints} = useGlobalContext()
+  console.log("Drawing from star", drawing)
   const handleStarClick = () => {
-    setSelectedPoints((prevPoints) => [...prevPoints, position]);
-    console.log(position)
+    console.log("Drawing", drawing)
+    if(drawing){
+      setSelectedPoints((prevPoints) => [...prevPoints, position]);
+      console.log(position)
+    }
   }
   return (
       <mesh position={position} onClick={handleStarClick}>
@@ -21,7 +25,9 @@ const Star = ({ position, magnitude }) => {
       </mesh>
     );
   };
-const Stars = ({ra,dec,sy_dist}) => {
+const Stars = ({ra,dec,sy_dist,drawing}) => {
+  console.log("Drawing from starsss", drawing)
+
     const [stars,setStars] = useState([])
     const {setStarData} = useGlobalContext()
     let {planetName} = useParams()
@@ -86,6 +92,7 @@ const Stars = ({ra,dec,sy_dist}) => {
             key={index}
             position={[20*x, 20*y, 20*z]}
             magnitude={star.Magnitude / 10}
+            drawing={drawing}
           />
         );
       })}

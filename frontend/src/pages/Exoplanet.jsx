@@ -9,13 +9,11 @@ import { useFrame } from "@react-three/fiber";
 import { AxesHelper } from "three";
 // import { LineCurve3 } from "three";
 import { Line } from "@react-three/drei";
-
-
+import { useImperativeHandle, forwardRef } from "react";
 import { useGlobalContext } from "../components/Context";
 import Stars from "../components/Exoplanet/Stars";
 import planetData from "../planets.json"
 import CustomControls from "../components/Exoplanet/CustomControls"
-
 
 extend({ OrbitControls });
 
@@ -83,66 +81,83 @@ const ConstellationLines = ({ points }) => {
 };
 
 
-const Scene = () => {
-  // const {ra,dec,sy_dist} = selectedPlanet
+// const Scene = forwardRef((props, ref) => {
+//     const { gl, scene, camera } = useThree(); // Access the WebGL context, scene, and camera
+//   let {planetName} = useParams()
+//   planetName = planetName.split("_").join(" ")
+//   const {selectedPoints} = useGlobalContext()
+//   // const groupRef = useRef()
+//   const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
+//   const {ra,dec,sy_dist} = singlePlanetData
+//   useImperativeHandle(ref, () => ({
+//     captureScreenshot() {
+//       // Render the current scene into the WebGL canvas
+//       gl.render(scene, camera);
+
+//       // Convert the canvas to a data URL and download it
+//       const screenshot = gl.domElement.toDataURL("image/png");
+//       const link = document.createElement("a");
+//       link.href = screenshot;
+//       link.download = "screenshot.png";
+//       link.click();
+//     },
+//   }));
+
+//   // The error was that the component didn't return anything
+//   // We need to return the JSX that renders the scene
+//   return (
+//     <>
+//       <group>
+//         <ambientLight intensity={0.5} />
+//         <pointLight position={[10, 10, 10]} />
+//         <TexturedPlane />
+//       </group>
+//       <Stars ra={ra} dec={dec} sy_dist={sy_dist} />
+//       {selectedPoints.length > 0 && <ConstellationLines points={selectedPoints} />}
+//     </>
+//   );
+
+// });
+
+const Scene = forwardRef((props, ref) => {
+  const { drawing } = props;
+  console.log("drawing from scene", drawing)
+  const { gl, scene, camera } = useThree(); // Access the WebGL context, scene, and camera
   let {planetName} = useParams()
   planetName = planetName.split("_").join(" ")
   const {selectedPoints} = useGlobalContext()
   // const groupRef = useRef()
   const singlePlanetData = planetData.find(planet => planet.pl_name === planetName)
   const {ra,dec,sy_dist} = singlePlanetData
-  const { gl, scene, camera } = useThree(); // Access the WebGL context, scene, and camera
+  // Use useImperativeHandle to expose the `captureScreenshot` function to the parent
+  useImperativeHandle(ref, () => ({
+    captureScreenshot() {
+      // Render the current scene into the WebGL canvas
+      gl.render(scene, camera);
 
-  const captureScreenshot = () => {
-    // Create a new canvas to render the current scene to
-    const screenshotCanvas = document.createElement("canvas");
-    const context = screenshotCanvas.getContext("2d");
-
-    // Set the size of the canvas
-    screenshotCanvas.width = window.innerWidth; // Or any specific width
-    screenshotCanvas.height = window.innerHeight; // Or any specific height
-
-    // Render the current scene into the screenshotCanvas
-    gl.setSize(screenshotCanvas.width, screenshotCanvas.height); // Set the size for the WebGL context
-    gl.render(scene, camera); // Render the scene to the WebGL context
-
-    // Read the pixels from the WebGL canvas
-    const data = new Uint8Array(screenshotCanvas.width * screenshotCanvas.height * 4);
-    gl.readPixels(0, 0, screenshotCanvas.width, screenshotCanvas.height, gl.RGBA, gl.UNSIGNED_BYTE, data);
-
-    // Create an ImageData object and draw it on the 2D context
-    const imageData = new ImageData(new Uint8ClampedArray(data), screenshotCanvas.width, screenshotCanvas.height);
-    context.putImageData(imageData, 0, 0);
-
-    // Convert the canvas to a data URL and download it
-    const screenshot = screenshotCanvas.toDataURL("image/png");
-    const link = document.createElement("a");
-    link.href = screenshot;
-    link.download = "screenshot.png";
-    link.click();
-  };
+      // Convert the canvas to a data URL and download it
+      const screenshot = gl.domElement.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = screenshot;
+      link.download = "screenshot.png";
+      link.click();
+    },
+  }));
 
   return (
     <>
+      {/* Your scene content here */}
       <group>
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
         <TexturedPlane />
       </group>
-      <Stars ra={ra} dec={dec} sy_dist={sy_dist} />
-      {/* {
-        // Use map to create LineSegments between consecutive points
-        selectedPoints.map((point, i) => {
-          if (i < selectedPoints.length - 1) {
-            return <LineSegment key={i} start={selectedPoints[i]} end={selectedPoints[i + 1]} />;
-          }
-          return null; // Avoid rendering for the last point
-        })
-      } */}
-      {selectedPoints.length>0&&<ConstellationLines points={selectedPoints} />}
+      <Stars ra={ra} dec={dec} sy_dist={sy_dist} drawing={drawing} />
+      {selectedPoints.length > 0 && <ConstellationLines points={selectedPoints} />}
     </>
   );
-};
+});
+
 
 const LineSegment = ({ start, end }) => {
   const curveRef = React.useRef();
@@ -162,42 +177,56 @@ const LineSegment = ({ start, end }) => {
 
 export default function Exoplanet() {
   const [drawing, setDrawing] = useState(false)
-
-  
-
   const [loading, setLoading] = useState(true)
-
+  const sceneRef = useRef();
   const onhandleClick = () => {
-    setDrawing(true)
-  }
+    setDrawing(true);
+  };
 
-  useEffect(()=>{
-    setTimeout(()=>{setLoading(false)}, [5000])
-  }, [])
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+  }, []);
+  const handleSaveImage = () => {
+    // Call the captureScreenshot function from Scene via the ref
+    if (sceneRef.current) {
+      sceneRef.current.captureScreenshot();
+    }
+  };
 
   return (
     <div className="w-full h-screen" style={{ backgroundColor: "black" }}>
       <Canvas>
-        <Scene />
-        <CustomControls disable={drawing}/>
+        <Scene ref={sceneRef} drawing={drawing}/>
+        <CustomControls disable={drawing} />
       </Canvas>
 
-     {loading&& <div className = "w-full h-full top-0 left-0 absolute object-contain flex items-center justify-center bg-[#0a1314]">
-        <img src="/loading.gif" alt=""  className= "h-full w-auto"/>
-        </div>  
-}
-      <div className="absolute top-[2rem] right-[2rem] flex gap-[1rem]">
+      {loading && (
+        <div className="w-full h-full top-0 left-0 absolute object-contain flex items-center justify-center bg-[#0a1314]">
+          <img src="/loading.gif" alt="" className="h-full w-auto" />
+        </div>
+      )}
 
-      {!drawing &&<button className="bg-blue-600 px-4 py-2 text-white rounded" onClick={onhandleClick}>
-        Draw Constellation
-        </button>}
-        <button className="bg-blue-600 px-4 py-2 text-white  rounded" >
-        Save Image
+      <div className="absolute top-[2rem] right-[2rem] flex gap-[1rem]">
+        {!drawing && (
+          <button
+            className="bg-blue-600 px-4 py-2 text-white rounded"
+            onClick={onhandleClick}
+          >
+            Draw Constellation
+          </button>
+        )}
+        <button
+        className="bg-blue-600 px-4 py-2 text-white rounded"
+        onClick={handleSaveImage} // Trigger screenshot on button click
+        >
+            Save Image
         </button>
       </div>
       <button className="absolute top-[2rem] px-4 py-2 text-white left-[2rem] flex align-start rounded">
-        <Link to ="/">
-        <IoArrowBackCircleOutline size = {30} />
+        <Link to="/">
+          <IoArrowBackCircleOutline size={30} />
         </Link>
       </button>
     </div>

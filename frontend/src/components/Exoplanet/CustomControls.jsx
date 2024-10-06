@@ -10,7 +10,7 @@ const CustomControls = ({disable}) => {
 
   useEffect(() => {
     const controls = new OrbitControls(camera, gl.domElement);
-    console.log(disable)
+    // console.log(disable)
     // Set custom options
     controls.enabled = !disable;
     controls.enableDamping = true;
