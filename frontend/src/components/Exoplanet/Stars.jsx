@@ -30,7 +30,7 @@ const Star = ({ position, magnitude, drawing }) => {
 const Stars = ({ra,dec,sy_dist,drawing}) => {
   console.log("Drawing from starsss", drawing)
 
-    const [stars,setStars] = useState(earthStars)
+    const [stars,setStars] = useState(earthStars.slice(2500, 7499))
     const {setStarData} = useGlobalContext()
     let {planetName} = useParams()
     planetName = planetName.split("_").join(" ")

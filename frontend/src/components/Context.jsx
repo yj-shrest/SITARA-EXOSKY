@@ -6,7 +6,7 @@ const AppContext = React.createContext();
 
 
 const AppProvider = ({ children }) => {
-    const [starData, setStarData] = useState(earthStars);
+    const [starData, setStarData] = useState(earthStars.slice(2500, 7499 ));
     const [selectedPlanet, setSelectedPlanet] = useState({});
     const [selectedPoints, setSelectedPoints] = useState([]);
     return (
