@@ -54,5 +54,5 @@ const CustomControls = ({disable}) => {
   }, [camera, gl, disable]);
 
   return null
-
+}
 export default CustomControls;
