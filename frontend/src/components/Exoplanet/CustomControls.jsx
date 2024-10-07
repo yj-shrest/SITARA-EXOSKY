@@ -53,12 +53,6 @@ const CustomControls = ({disable}) => {
     };
   }, [camera, gl, disable]);
 
-  return (
-    <mesh position={[0,-50,-50]}>
-    <boxGeometry args={[10,10,10]}/>
-    <meshBasicMaterial color="red"/>
-    </mesh>
-  );
-};
-
+  return null
+}
 export default CustomControls;
