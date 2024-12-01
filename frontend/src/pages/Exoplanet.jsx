@@ -14,9 +14,7 @@ import { useGlobalContext } from "../components/Context";
 import Stars from "../components/Exoplanet/Stars";
 import planetData from "../planets.json"
 import CustomControls from "../components/Exoplanet/CustomControls"
-
 extend({ OrbitControls });
-
 
 // Convert exoplanet RA/Dec/Distance to Cartesian coordinates
 const convertToCartesian = ({ ra, dec, distance }) => {
@@ -29,7 +27,33 @@ const convertToCartesian = ({ ra, dec, distance }) => {
 };
 
 const TexturedPlane = () => {
-  const texture = new THREE.TextureLoader().load(`/planets/${Math.floor(Math.random()*13)+1}.jpg`);
+  function hashTextToRange(text) {
+    // Simple hash function (djb2)
+    let hash = 5381;
+    for (let i = 0; i < text.length; i++) {
+      hash = (hash *2) ^ text.charCodeAt(i);
+    }
+
+    // Convert the hash to a positive number and map it to the range 1-13
+    const positiveHash = Math.abs(hash);
+    const range = (positiveHash % 13) + 1;
+
+    return range;
+
+  }
+  const {planetName} = useParams()
+  console.log(planetName)
+  const number = hashTextToRange(planetName);
+  console.log(number);
+
+
+
+  // const planetNumber = 
+    
+    // Convert the hash to a positive number and map it to the range 1-13
+ 
+
+  const texture = new THREE.TextureLoader().load(`/planets/${number}.jpg`);
   const materialRef = useRef();
   const { camera } = useThree();
 

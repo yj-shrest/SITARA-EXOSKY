@@ -41,7 +41,18 @@ const Stars = ({ra,dec,sy_dist,drawing}) => {
         const fetchStars = async () => {
             console.log("Fetching stars");
             try {
-                const response = await axios.get(`http://localhost:4000/api/getStarData`,{
+                // const response = await axios.get(`http://localhost:4000/api/getStarData`,{
+                //   params:{
+                //     ra:ra,
+                //     dec:dec,
+                //     searchRadius:planetDistance<20?90:20,
+                //     magLimit:10,
+                //     dist:sy_dist,
+                //     plusminus:80
+                //   }
+                // });
+                // const response = await axios.get(`https://sitara-exosky.onrender.com/api/getStarData?ra=${ra}&dec=${dec}&searchRadius=20&magLimit=10&dist=${sy_dist}&plusminus=200`);
+                const response = await axios.get(`https://sitara-exosky.onrender.com/api/getStarData`,{
                   params:{
                     ra:ra,
                     dec:dec,
@@ -51,6 +62,7 @@ const Stars = ({ra,dec,sy_dist,drawing}) => {
                     plusminus:80
                   }
                 });
+
                 console.log(response.data.total)
                 // Directly use response.data, assuming the data is already in JSON format
                 // console.log(response.data.data)
